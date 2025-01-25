@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+app.use(cors()); // Разрешаем запросы с других доменов
 
 const app = express();
 app.use(bodyParser.json());
@@ -8,9 +9,13 @@ app.use(cors());
 
 // Простая база данных в памяти для хранения монет пользователей
 const userCoins = {};
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-// Получение количества монет для конкретного пользователя
 app.get("/api/coins", (req, res) => {
+  console.log("GET /api/coins", req.query); // Логируем запрос
   const { user_id } = req.query;
 
   if (!user_id) {
@@ -20,6 +25,7 @@ app.get("/api/coins", (req, res) => {
   const coins = userCoins[user_id] || 0;
   res.json({ coins });
 });
+
 
 // Обновление количества монет для конкретного пользователя
 app.post("/api/coins", (req, res) => {
@@ -31,10 +37,4 @@ app.post("/api/coins", (req, res) => {
 
   userCoins[user_id] = coins; // Сохраняем монеты для пользователя
   res.json({ success: true, coins });
-});
-
-// Запуск сервера
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });
