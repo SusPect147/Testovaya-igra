@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Mini App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .counter {
+      font-size: 24px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Монеты</h1>
+  <div class="counter">Монеты: <span id="coinCount">0</span></div>
+  <button id="addCoin">Добавить монету</button>
+
+  <script>
+    const apiUrl = "https://YOUR_RENDER_SERVER_URL/api/coins"; // Укажите ваш сервер
+
+    // Получение текущего значения монет с сервера
+    async function getCoins() {
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        document.getElementById("coinCount").textContent = data.coins;
+      } catch (error) {
+        console.error("Ошибка при загрузке данных:", error);
+      }
+    }
+
+    // Отправка обновленного количества монет на сервер
+    async function updateCoins(newCoins) {
+      try {
+        await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ coins: newCoins }),
+        });
+      } catch (error) {
+        console.error("Ошибка при обновлении данных:", error);
+      }
+    }
+
+    // Логика кнопки
+    document.getElementById("addCoin").addEventListener("click", async () => {
+      const coinCountElement = document.getElementById("coinCount");
+      let currentCoins = parseInt(coinCountElement.textContent);
+      const newCoins = currentCoins + 1;
+      coinCountElement.textContent = newCoins;
+      await updateCoins(newCoins);
+    });
+
+    // Инициализация
+    getCoins();
+  </script>
+</body>
+</html>
