@@ -8,6 +8,7 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
+      background: blue;
       margin: 50px;
     }
     button {
@@ -27,14 +28,27 @@
   <button id="addCoin">Добавить монету</button>
 
   <script>
-    const apiUrl = "https://testovaya-igra-3.onrender.com/api/coins"; // Укажите ваш сервер
+    const apiUrl = "https://YOUR_RENDER_SERVER_URL/api/coins"; // Укажите ваш сервер
 
-    // Получение текущего значения монет с сервера
+    // Получение initData от Telegram Mini App
+    const tg = window.Telegram.WebApp;
+    const initData = tg.initData || ""; // initData передается автоматически
+    const initDataParsed = new URLSearchParams(initData);
+
+    // Извлечение user_id из initData
+    const userId = initDataParsed.get("user_id");
+
+    if (!userId) {
+      alert("Ошибка: невозможно определить пользователя.");
+      throw new Error("User ID отсутствует.");
+    }
+
+    // Получение текущего количества монет с сервера
     async function getCoins() {
       try {
-        const response = await fetch(apiUrl);
+        const response = await fetch(`${apiUrl}?user_id=${userId}`);
         const data = await response.json();
-        document.getElementById("coinCount").textContent = data.coins;
+        document.getElementById("coinCount").textContent = data.coins || 0;
       } catch (error) {
         console.error("Ошибка при загрузке данных:", error);
       }
@@ -48,7 +62,10 @@
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ coins: newCoins }),
+          body: JSON.stringify({
+            user_id: userId,
+            coins: newCoins,
+          }),
         });
       } catch (error) {
         console.error("Ошибка при обновлении данных:", error);
